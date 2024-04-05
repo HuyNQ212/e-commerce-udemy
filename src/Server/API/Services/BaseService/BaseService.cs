@@ -1,6 +1,8 @@
 ﻿using System.Linq.Expressions;
+using API.Commons;
 using API.Entities;
 using API.Repositories.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace API.Services.BaseService;
 
@@ -72,5 +74,30 @@ public class BaseService<TEntity> : IBaseService<TEntity> where TEntity : BaseEn
 
         _unitOfWork.GenericRepository<TEntity>().Update(entity);
         return await _unitOfWork.SaveChangesAsync() > 0;
+    }
+
+    public virtual async Task<Paginated<TEntity>> GetAsync(Expression<Func<TEntity, bool>> filter = null,
+            Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null,
+            string includeProperties = "", int pageIndex = 1, int pageSize = 10)
+    {
+        IQueryable<TEntity> query = _unitOfWork.GenericRepository<TEntity>().GetQuery();
+
+        if (filter != null)
+        {
+            query = query.Where(filter);
+        }
+
+        foreach (var includeProperty in includeProperties.Split
+            (new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+        {
+            query = query.Include(includeProperty);
+        }
+
+        if (orderBy != null)
+        {
+            query = orderBy(query);
+        }
+
+        return await Paginated<TEntity>.CreateAsync(query.AsNoTracking(), pageIndex, pageSize);
     }
 }

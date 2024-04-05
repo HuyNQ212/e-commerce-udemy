@@ -1,4 +1,6 @@
+using API.Commons;
 using API.Dtos;
+using API.Helpers;
 using API.Repositories.Interfaces;
 using API.Services.CommonServices.Interfaces;
 using API.Specifications;
@@ -20,14 +22,26 @@ namespace API.Controllers
             this.productService = productService;
         }
 
-        [HttpGet("GetAllProducts")]
-        public async Task<IActionResult> GetProducts()
+        [HttpGet("")]
+        public async Task<IActionResult> GetProducts(int pageIndex, int pageSize , int? brandId, int? typeId, string? sortOrder)
         {
-            var products = await productService.GetProductsIncludeBrandAndType();
+            try
+            {
+                var products =
+                    await productService.GetProductsIncludeBrandAndType(pageIndex, pageSize, brandId, typeId,
+                        sortOrder);
 
-            var productsReturn = mapper.Map<List<ProductReturnDto>>(products);
+                var productsReturn = products.MappingToProductReturnDtos();
+                productsReturn.Ok();
 
-            return Ok(productsReturn);
+                return Ok(productsReturn);
+            }
+            catch (Exception e)
+            {
+                var result = new ResponseData<BaseDto>();
+                result.InternalServerError(e.Message);
+                return Ok(result);
+            }
         }
 
         [HttpGet("{id}")]
@@ -45,5 +59,20 @@ namespace API.Controllers
             return Ok(returnDto);
         }
 
+        [HttpGet("Brands")]
+        public async Task<IActionResult> GetBrands()
+        {
+            var brands = await productService.GetBrands();
+
+            return Ok(brands);
+        }
+
+        [HttpGet("Types")]
+        public async Task<IActionResult> GetTypes()
+        {
+            var types = await productService.GetTypes();
+
+            return Ok(types);
+        }
     }
 }

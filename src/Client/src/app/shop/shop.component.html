@@ -1,0 +1,69 @@
+<div class="container">
+  <div class="row">
+    <section class="col-3">
+      <h5 class="text-warning m-3">Brands</h5>
+      <select class="form-select" name="sort" id="sort" (change)="onSortSelected($event)">
+        <option *ngFor="let sort of sortOptions" value="{{sort.value}}">{{sort.name}}</option>
+      </select>
+      <hr>
+      <h5 class="text-warning m-3">Brands</h5>
+      <ul class="list-group">
+        <li class="list-group-item cursor"
+            *ngFor="let brand of brands"
+            [class.active]="brand.id === brandIdSelected"
+            [value]="brand.id"
+            (click)="onBrandSelected(brand.id)"
+            [class.text-white]="brand.id === brandIdSelected"
+        >{{brand.name}}
+        </li>
+      </ul>
+      <hr>
+      <h5 class="text-warning m-3">Types</h5>
+      <ul class="list-group">
+        <li class="list-group-item cursor"
+            *ngFor="let type of types"
+            [class.active]="type.id === typeIdSelected"
+            [value]="type.id"
+            (click)="onTypeSelected(type.id)"
+            [class.text-white]="type.id === typeIdSelected"
+        >
+          {{type.name}}
+        </li>
+      </ul>
+    </section>
+    <section class="col-9">
+      <div class="d-flex justify-content-between align-items-center pb-2">
+        <header>
+          <span>Showing <strong>{{(pageIndex * pageSize) > productPaginated.count ? productPaginated.count : pageIndex * pageSize}}</strong> of <strong>{{productPaginated.count}}</strong> Results</span>
+        </header>
+        <div class="d-flex mt-2">
+          <input type="text" name="search" id="search" class="form-control me-2" placeholder="Search here">
+          <button class="btn btn-outline-primary mx-2">Search</button>
+          <button class="btn btn-outline-success mx-2">Reset</button>
+        </div>
+      </div>
+      <div class="row row-cols-3 g-3">
+        <div class="col" *ngFor="let product of productPaginated.data">
+          <app-product-item [product]="product"></app-product-item>
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-between mt-3">
+        <pagination [boundaryLinks]="true" [totalItems]="productPaginated.count" [itemsPerPage]="pageSize"
+                    (pageChanged)="pageChange($event)"
+                    previousText="&lsaquo;" nextText="&rsaquo;" firstText="&laquo;" lastText="&raquo;">
+        </pagination>
+
+        <div class="col-md-3 d-flex flex-row-reverse">
+          <div class="form-group">
+            <select class="form-control" id="pageSizeSelect" [(ngModel)]="pageSize" (change)="pageSizeChanged()">
+              <option class="text-center" *ngFor="let size of pageSizes" [value]="size">{{ size }}</option>
+            </select>
+          </div>
+          <p class="mt-1">Page size: </p>
+        </div>
+
+      </div>
+    </section>
+  </div>
+</div>

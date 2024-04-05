@@ -5,11 +5,5 @@ namespace API.Commons;
 
 public class DbInitializer
 {
-    public static async Task SeedAsync(StoreContext context)
-    {
-        if (!context.ProductBrands.Any())
-        {
-            
-        }
-    }
+    
 }
